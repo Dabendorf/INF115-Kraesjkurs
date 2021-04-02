@@ -1,0 +1,123 @@
+\documentclass[aspectratio=169,fleqn]{beamer}
+% Mit HU-Logo
+%\usetheme[pageofpages=of,titlepagelogo=logo-huberlin-500]{hubln}
+% Ohne HU-Logo
+% Laut irgendwelcher internen Regularien darf das HU-Logo nicht von Studierenden benutzt werden
+\usetheme[pageofpages=of]{hubln}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{tabularx}
+\usepackage{hhline}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{multirow}
+\usefonttheme{professionalfonts}
+\setbeamercovered{invisible}
+\hfuzz=8.64pt % Antioverfullbox-inator
+
+\setbeamercolor{block body alerted}{bg=alerted text.fg!10}
+\setbeamercolor{block title alerted}{bg=alerted text.fg!20}
+\setbeamercolor{block body}{bg=structure!10}
+\setbeamercolor{block title}{bg=structure!20}
+\setbeamercolor{block body example}{bg=green!10}
+\setbeamercolor{block title example}{bg=green!20}
+\setbeamertemplate{blocks}[rounded][shadow]
+
+% Befehle für den Präsentationsmodus
+% Die folgenden beiden Befehle erstellen eine Präsentation, die Notizen enthält und beim Öffnen auf zwei Bildschirmen auf einem die aktuelle Folie und auf dem anderen die nächste Folie und die Notizen anzeigt
+% \setbeameroption{show notes}
+% \setbeameroption{show notes on second screen=right}
+
+% Anschließend diesen Befehl im Terminal nutzen
+% w: in Fenstern statt Vollbild öffnen
+% Switch-Screen, wenn Bildschirme zu vertauschen
+% pdfpc --switch-screens --notes=right Presentation.pdf
+
+
+% Einfügen von Notizen
+% Hierfür muss nach einem Frame das folgende eingefügt werden
+%\note[itemize]{
+%    \item point 1
+%    \item point 2
+%}
+
+% Dies ermöglicht es, eine stichpunktartige Notizenliste zu führen, die mit der vorhergehenden Folie zusammenhängt. Andere Notizsorten sind möglich, man möge hierfür die Dokumentation lesen
+
+% \hypersetup{pdfpagemode=FullScreen}
+% Dieser Befehl öffnet die Datei beim Öffnen direkt im Vollbildmodus
+
+
+% Diese beiden Graphen hier sind nur zu Anschauungszwecken im Beispiel drin
+% kann entfernt werden
+% START
+\newcommand{\myGraph}{%
+  \begin{tikzpicture}[node distance=1.45cm, thick,
+                      main node/.style={circle, draw, font=\sffamily\bfseries}]
+  
+    \node[main node] (1)                    {1};
+    \node[main node] (3) [below left  of=1] {3};
+    \node[main node] (4) [below right of=1] {4};
+    \node[main node] (2) [above right of=4] {2};
+    \node[main node] (5) [below right of=2] {5};
+    \node[main node] (6) [below left  of=5] {6};
+
+    \path
+    (1) edge (2)
+    (1) edge (3)
+    (1) edge (4)
+    (2) edge (4)
+    (2) edge (5)
+    (2) edge (6)
+    (3) edge (4)
+    (3) edge (6)
+    (5) edge (6);
+  \end{tikzpicture}
+}
+
+\newcommand{\myGraphCorrect}{
+  \begin{tikzpicture}[node distance=1.45cm, thick,
+                      main node/.style={circle, draw, font=\sffamily\bfseries}]
+
+    \node[main node] (1)                    {1};
+    \node[main node] (3) [below left  of=1] {3};
+    \node[main node] (4) [below right of=1] {4};
+    \node[main node] (2) [above right of=4] {2};
+    \node[main node] (5) [below right of=2] {5};
+    \node[main node] (6) [below left  of=5] {6};
+    \draw[red,thick,dashed] (1.5,-2.3) -- (1.5,0.3);
+
+    \path
+    (1) edge (2)
+    (1) edge (3)
+    (1) edge (4)
+    (2) edge (4)
+    (2) edge (5)
+    (2) edge (6)
+    (3) edge (4)
+    (3) edge (6)
+    (5) edge (6);
+  \end{tikzpicture}
+}
+
+% Diese beiden Graphen hier sind nur zu Anschauungszwecken im Beispiel drin
+% kann entfernt werden
+% ENDE
+
+\newcommand{\newLine}{%
+  \hfill\break
+}
+
+% Hier die Daten zur Präsentation eintragen
+\author[ls]{Vorname Nachname}
+\title[sgp]{Thema}
+\institute{Institut für Informatik \\ Humboldt-Universität zu Berlin}
+\date[28.01.20]{28 January 2020}
+
+% Dieses Dokument stellt nur die Präambel dar, alle Inhalte sind in die Datei Presentation.tex ausgelagert worden
+\begin{document}
+  \input{Presentation}
+\end{document}
