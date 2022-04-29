@@ -1,4 +1,4 @@
-\documentclass[aspectratio=169,fleqn]{beamer}
+\documentclass[aspectratio=169,fleqn,xcolor={dvipsnames}]{beamer}
 % Mit HU-Logo
 %\usetheme[pageofpages=of,titlepagelogo=logo-huberlin-500]{hubln}
 % Ohne HU-Logo
@@ -15,6 +15,12 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{multirow}
+\usepackage{minted,xcolor}
+\usemintedstyle{monokai} %vs
+%\definecolor{bg}{HTML}{282828}
+\definecolor{bg}{RGB}{40, 40, 40}
+\setminted{bgcolor=black,frame=lines,
+               framesep=2mm}
 \usefonttheme{professionalfonts}
 \setbeamercovered{invisible}
 \hfuzz=8.64pt % Antioverfullbox-inator
@@ -112,10 +118,10 @@
 }
 
 % Hier die Daten zur Präsentation eintragen
-\author[ls]{Vorname Nachname}
-\title[sgp]{Thema}
-\institute{Institut für Informatik \\ Humboldt-Universität zu Berlin}
-\date[28.01.20]{28 January 2020}
+\author[ls]{Lukas Schramm}
+\title[sgp]{Kræsjkurs INF115}
+\institute{Institutt for informatikk \\ Universitetet i Bergen}
+\date[23.05.22]{23 Mai 2022}
 
 % Dieses Dokument stellt nur die Präambel dar, alle Inhalte sind in die Datei Presentation.tex ausgelagert worden
 \begin{document}
