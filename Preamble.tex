@@ -117,6 +117,10 @@
   \hfill\break
 }
 
+\tikzset{onslide/.code args={<#1>#2}{% from https://tex.stackexchange.com/a/6155/263192
+  \only<#1>{\pgfkeysalso{#2}}
+}}
+
 % Hier die Daten zur Präsentation eintragen
 \author[ls]{Lukas Schramm}
 \title[sgp]{Kræsjkurs INF115}

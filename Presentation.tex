@@ -188,14 +188,14 @@ AGE int DEFAULT 18          -- standardverdi
 \subsection*{Andre ting}
 \begin{frame}[fragile]{Alt mulig}
 \begin{minted}{sql}
-SELECT DISTINCT                 -- fjerner duplikater
-WHERE navn LIKE "A\%"           -- alt som starter med A
+SELECT DISTINCT                     -- fjerner duplikater
+WHERE navn LIKE "A\%"               -- alt som starter med A
 -- \% 0, 1 eller flere tegn
 -- _ eksakt et tegn
-WHERE category IN (cake, bread) -- verdien er i en liste
-WHERE age BETWEEN 18 and 65     -- verdien er i en range
-WHERE EXISTS (SELECT ...)       -- verdien finnes i en annen query
-(SELECT ...) UNION (SELECT ...) -- union av to queries
+WHERE category IN ("cake", "bread") -- verdien er i en liste
+WHERE age BETWEEN 18 and 65         -- verdien er i en range
+WHERE EXISTS (SELECT ...)           -- verdien finnes i en annen query
+(SELECT ...) UNION (SELECT ...)     -- union av to queries
 \end{minted}
 \end{frame}
 
@@ -221,8 +221,48 @@ FROM OrderDetails;
 \end{frame}
 
 \section{Relasjonsalgebra}
-\begin{frame}{}
-    TODO: fyll med innhold om relasjonsalgebra
+\subsection*{Operatorer}
+\begin{frame}{Operatorer}
+\begin{tabular}{l|l|l}
+ Operator & Betydning & Eksempel\\\hline
+ $\pi_{columns}(Tabell)$ & Projection (SELECT DISTINCT) & $\pi_{title, year}(Film)$\\
+ $\sigma_{condition}(Tabell)$ & Condition (WHERE) & $\sigma_{year > 2015}(Film)$\\
+ $A \times B$ & Cross join / Cartesian product & $Film \times Screening$\\
+ $A \cap B$ & Intersection & $Film1 \cap Film2$ \\
+ $A \cup B$ & Union & $Film1 \cup Film2$ \\
+ $A \setminus B$ & Set difference &  $Film1 \setminus Film2$\\
+ $A \bowtie_{condition} B$ & Inner Join & $A \bowtie_{film_{id}=film_{id}} B$\\
+\end{tabular}
+\end{frame}
+
+\subsection*{Eksempler}
+\begin{frame}[fragile]{Eksempel 1}
+\begin{minted}{sql}
+SELECT DISTINCT Country
+FROM Film
+WHERE year < 1950
+\end{minted}
+$\pi_{Country}\textcolor{blue}{(}\sigma_{year < 1950}\textcolor{red}{(}Film\textcolor{red}{)}\textcolor{blue}{)}$
+\end{frame}
+
+\begin{frame}[fragile]{Eksempel 2}
+\begin{minted}{sql}
+SELECT DISTINCT title, year
+FROM Film, Director
+WHERE Film.dir_id = Director.id
+AND Film.year = 1992
+\end{minted}
+$\pi_{title, year}\textcolor{blue}{(}\sigma_{year = 1992}\textcolor{red}{(}Film\textcolor{red}{)} \bowtie_{Film.dir\_id=Director.id}\textcolor{red}{(}Director\textcolor{red}{)}\textcolor{blue}{)}$
+\end{frame}
+
+\begin{frame}[fragile]{Eksempel 3}
+\begin{minted}{sql}
+SELECT Country.name, capital, inhabitants
+FROM Country, City
+WHERE Country.capital = City.id
+AND inhabitants < 500000
+\end{minted}
+$\pi_{Country.name, capital, inhabitants}\textcolor{blue}{(}\sigma_{inhabitants < 500000}\textcolor{green}{(}\textcolor{red}{(}Country\textcolor{red}{)}\bowtie_{Capital=City.id}\textcolor{red}{(}City\textcolor{red}{)}\textcolor{green}{)}\textcolor{blue}{)}$
 \end{frame}
 
 \subsection*{Spørretid}
@@ -234,6 +274,10 @@ FROM OrderDetails;
         \label{fig:guillaume4}
     \end{figure}
 \end{frame}
+
+%=================================
+%Fortsett her
+%=================================
 
 \section{ER-Diagrammer}
 \begin{frame}{}
@@ -250,9 +294,193 @@ FROM OrderDetails;
     \end{figure}
 \end{frame}
 
+%=================================
+
 \section{Normalisasjon}
-\begin{frame}{}
-    TODO: fyll med innhold om Normalisasjon
+\subsection*{Hvorfor gjør man normalisasjon?}
+\begin{frame}{Hvorfor normalisasjon?}
+\begin{itemize}
+    \item Unngå redundante informasjoner
+    \item Bedre å oppdatere informasjoner hvis de bare finnes en gang
+    \item Lettere å bruke en stor database
+    \item Visualisering av en database
+\end{itemize}
+\end{frame}
+
+\subsection*{Viktige begrep}
+\begin{frame}{Begrep}
+\begin{itemize}
+    \item \textbf{Entitet: }En tabell i databasen
+    \item \textbf{Attributt: }En spalte i en tabell
+    \item \textbf{Nøkkel: }En spalte som bestemmer en/noen flere spalter
+    \item \textbf{Supernøkkel: }En nøkkel som bestemmer alle andre spaltene
+    \item \textbf{Kandidatnøkkel: }En minimal supernøkkel
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Functional Dependencies}
+\begin{itemize}
+    \item En eller flere spalter bestemmer verdier av andre spalter
+    \item $A \rightarrow B$ (A bestemmer B)
+    \item $A,B \rightarrow C, D, E$ (A og B bestemmer C, D og E)
+    \item PersonNr $\rightarrow$ Navn (det samme nummer er det samme person)
+    \item ZipCode $\rightarrow$ City (den samme postkoden er den samme byen)
+\end{itemize}
+\end{frame}
+
+\subsection*{Anomalier}
+\begin{frame}{Eksempel}
+%\begin{center}
+\begin{tabular}{l|l|l|l|l}
+ StudentNr & Name & Address & KursNr & KursName \\\hline
+ 580 & Ola NordmaNN & 5075 Bergen Fv 14 & INF237 & Algorithm Engineering\\
+ 580 & Ola NordmaNN & 5075 Bergen Fv 14 & INF273 & Meta Heuristikker\\
+ 580 & Ola NordmaNN & 5075 Bergen Fv 14 & INF227 & Logik\\
+ 256 & Max MustermaNN & 5055 Bergen Lv 85 & INF237 & Algorithm Engineering\\
+\end{tabular}
+\\[5mm]
+Hva er problemet her?\\
+Informasjoner blir lagret dobbelt.\\
+Hvis kursnavn eller studentadressen endrer seg, må den endres flere ganger.
+%\end{center}
+\end{frame}
+
+\begin{frame}{Anomalier}
+\begin{itemize}
+    \item Insertion Anomaly: Den samme informasjonen blir lagt inn med andre verdier
+    \item Update Anomaly: Dobbel informasjon blir ikke oppdatert overalt
+    \item Deletion Anomaly: Data forsvinner fordi den ikke finnes i en egen tabell
+\end{itemize}
+\medskip
+Eksempler:
+\begin{itemize}
+    \item Insertion Anomaly: Studenten tar et kurs til, men har nå en annen adresse 
+    \item Update Anomaly: Kursnavnet blir oppdatert, men ikke for alle studenter
+    \item Deletion Anomaly: En student melder seg ut av alle kurser, så forsvinner han i hele databasen
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Hvordan løser man problemene?}
+\begin{tabular}{l|l|l}
+ StudentNr & Name & Address\\\hline
+ 580 & Ola NordmaNN & 5075 Bergen Fv 14\\
+ 256 & Max MustermaNN & 5055 Bergen Lv 85\\
+\end{tabular}
+\vfill
+\begin{tabular}{l|l}
+KursNr & KursName \\\hline
+INF237 & Algorithm Engineering\\
+INF273 & Meta Heuristikker\\
+INF227 & Logikk\\
+\end{tabular}
+\hfill
+\begin{tabular}{l|l}
+ StudentNr & KursNr\\\hline
+ 580 & INF237\\
+ 580 & INF273\\
+ 580 & INF227\\
+ 256 & INF237\\
+\end{tabular}
+\end{frame}
+
+\subsection*{Normalformer}
+\begin{frame}{1. Normalform (1NF)}
+    \begin{block}{1. Normalform}
+    Hvert attributt (spalte) må være atomar, den kan ikke har flere verdier (lister etc. er forbud).
+    \end{block}
+    \vfill
+    \begin{tabular}{l|l}
+     StudentNr & KursNr\\\hline
+     580 & [INF237, INF273, INF227]\\
+     256 & INF237\\
+     \end{tabular}
+     \hfill
+     $\rightarrow$
+     \hfill
+     \begin{tabular}{l|l}
+     StudentNr & KursNr\\\hline
+     580 & INF237\\
+     580 & INF273\\
+     580 & INF227\\
+     256 & INF237\\
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{2. Normalform (2NF)}
+    \begin{block}{2. Normalform}
+    Alle ikke-nøkkel-attributter er fullstendig funksjonell avhengig av en primærnøkkel.\\
+    En ikke primær-attributt kan ikke være avhengig av bare en del av nøkkelen.
+    \end{block}
+    \vfill
+    \only<1>{\begin{tabular}{l|l|l}
+     StudentNr & KursNr & StudentNavn\\\hline
+     580 & INF237 & Ola\\
+     580 & INF273 & Ola\\
+     580 & INF227 & Ola\\
+     256 & INF237 & Max\\
+     \end{tabular}
+     }
+     \only<2>{
+     \begin{tabular}{l|l}
+     StudentNr & KursNr\\\hline
+     580 & INF237\\
+     580 & INF273\\
+     580 & INF227\\
+     256 & INF237\\
+    \end{tabular}
+    \hfill
+    \begin{tabular}{l|l}
+     StudentNr & StudentNavn\\\hline
+     580 & Ola\\
+     580 & Ola\\
+     580 & Ola\\
+     256 & Max\\
+    \end{tabular}
+    }
+\end{frame}
+
+\begin{frame}{3. Normalform (3NF)}
+\begin{block}{3. Normalform}
+    Det finnes ingen transitive avhengigheter.\\
+    Det finnes ikke tre attributter A, B, C der $A \rightarrow B$ og $B \rightarrow C$ gjelder.
+    \end{block}
+    \vfill
+    \only<1>{\begin{tabular}{l|l|l}
+     Universitetet & By & Land\\\hline
+     UiB & Bergen & Norge\\
+     HUB & Berlin & Tyskland\\
+     NTNU & Trondhjem & Norge\\
+     \end{tabular}
+     }
+     \only<2>{
+     \begin{tabular}{l|l}
+     Universitetet & By\\\hline
+     UiB & Bergen\\
+     HUB & Berlin\\
+     NTNU & Trondhjem\\
+    \end{tabular}
+    \hfill
+    \begin{tabular}{l|l}
+     By & Land\\\hline
+     Bergen & Norge\\
+     Berlin & Tyskland\\
+     Trondhjem & Norge\\
+    \end{tabular}
+    }
+\end{frame}
+
+\begin{frame}{Boyce–Codd Normalform (BCNF)}
+\begin{block}{Boyce-Codd Normalform ($3 \frac{1}{2}$NF)}
+    Det finnes ikke to overlappende kandidatnøkler. Skjer nesten aldri.
+    \end{block}
+    \vfill
+    $Tabell(A, B, C, D)$\\
+    $A,B\rightarrow C,D; $ $C\rightarrow B$\medskip
+    
+    \pause
+    Løsning: Split opp tabellen for å fjerne syklisk avhengig:\\
+    $Tabell1(A, C, D)$, $Tabell2(C, B)$\\
+    $A\rightarrow C,D; $ $C\rightarrow B$\medskip
 \end{frame}
 
 \subsection*{Spørretid}
@@ -265,6 +493,7 @@ FROM OrderDetails;
     \end{figure}
 \end{frame}
 
+%=================================
 
 \section{Indekser}
 \begin{frame}{}
@@ -281,10 +510,138 @@ FROM OrderDetails;
     \end{figure}
 \end{frame}
 
+%=================================
 
 \section{Transaksjoner}
+\begin{frame}{Hvorfor Transactions?}
+    \begin{itemize}
+        \item Sammenfatte flere kommandoer til en transaksjon
+        \item Passe på at alt eller ingenting blir utført
+        \item Passe på at flere kommandoer ikke blandes meg hverandre
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{ACID Prinsipper}
+    \begin{itemize}
+        \item Atomicity: Alt eller ingenting blir utført.
+        \item Consistency: Databasen går fra en gyldig til en gyldig status.
+        \item Isolation: Parallele transaksjoner ser ikke hverandre.
+        \item Durability: Resultater av en transaksjon blir ikke overskrevet av den neste transaksjonen.
+    \end{itemize}
+\end{frame}
+
+\subsection*{Ting som kan gå galt}
 \begin{frame}{}
-    TODO: fyll med innhold om transaksjoner
+    \begin{block}{Lost Update}
+    To transaksjoner jobber på samme tall på samme tidspunkt og den ene overskrever den andres verdien.
+    \end{block}
+    \begin{itemize}
+        \item Vi får samtidig 1.000 kr fra bestemoren (A) og betaler 100kr til hvem som helst (B)
+        \item A leser verdien på kontoen (5000kr)
+        \item B leser verdien på kontoen (5000kr)
+        \item A legger til 1.000kr og skriver verdien tilbake til databasen (6000kr)
+        \item B fjerner 100kr og skriver verdien tilbake til databasen (4900kr)
+        \item B har overskrevet resultatet til A
+    \end{itemize}
+    
+\end{frame}
+
+\begin{frame}{}
+    \begin{block}{Aborted Update}
+    En kommando ikke blir tilbakegjort etter rollback.
+    \end{block}
+    \begin{itemize}
+        \item A sender 100kr til B
+        \item Banken fjerner 100kr fra kontoen til A
+        \item Det skjer en feil når man gir 100kr til B
+        \item Nå har A tapt 100kr, men B ikke fått 100kr
+        \item Databasen må nå rette kontoen til A
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{}
+    \begin{block}{Inconsistent Analysis}
+    En kommando baserer seg på både gamle data og nye data samtidig.
+    \end{block}
+    \begin{itemize}
+        \item Vi skal legge til en film og en screening i databasen
+        \item I tillegg skal vi få en joined tabell med alle filmer og screenings til sammen
+        \item Hvis man legger til film, kjører JOIN kommandoen og etterpå legger til screening, har vi \textit{inconsistent analysis}
+        \item Kommandoen baserer informasjoner på gamle verdier (screening tabell) og nye verdier (film database) samtidig
+        \item Enten gjør alle INSERT på begynnelsen eller på slutten
+    \end{itemize}
+\end{frame}
+
+\subsection*{SQL Transaksjoner}
+\begin{frame}[fragile]{Transaksjoner i SQL}
+\begin{minted}{sql}
+START TRANSACTION;      -- her starter transaksjonen
+UPDATE bankaccount      -- ta 20kr fra en bankkonto 
+SET money = money - 20  -- dette er ikke korrekt syntaks
+WHERE customer = 42;
+UPDATE bankaccount      -- gi de 20kr til en annen bankkonto
+SET money = money + 20
+WHERE customer = 20;
+COMMIT;                 -- commit hvis alt gikk fint, ellers rollback
+-- ROLLBACK
+\end{minted}
+\end{frame}
+
+\subsection*{Begrep}
+\begin{frame}
+\begin{itemize}
+    \item Serialisability: To transaksjoner er serialisable dersom det finnes en rekkefølge de kan utføres uten at de ignorerer ACID-prinsippene
+    \item Write lock: Variabel kan ikke endres, men verdien kan leses 
+    \item Read lock: Variabel kan verken leses eller endres
+    \item Two phase locking: Blokker alle variabler samtidig, frigir dem samtidig
+\end{itemize}
+\end{frame}
+
+\subsection*{Waiting graph}
+\begin{frame}{Finne rekkefølge for SQL kommandoer}
+\begin{itemize}
+    \item Lag rettet graf med transaksjoner som noder
+    \item A venter til B: $A \rightarrow B$ (retningen antiintuitiv)
+    \item Finn en rekkefølge å gå gjennom nodene
+    \item Hvis graf har sykler finnes ikke en sånn rekkefølge
+    \item Fjern de eldste transaksjonene inntil ingen sykler er igjen
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Eksempel}
+\begin{columns}
+    \begin{column}{0.48\textwidth}
+\begin{tikzpicture}[
+    node distance=1.45cm, thick,
+    main node/.style={circle, draw, font=\sffamily\bfseries}
+]
+    \node<-4>[main node] (1)                    {1};
+    \node[main node,onslide=<8>{fill=black!60!green}] (3) [below left  of=1] {3};
+    \node[main node,onslide=<7->{fill=black!60!green}] (4) [below right of=1] {4};
+    \node[main node,onslide=<3->{fill=black!60!green}] (2) [above right of=4] {2};
+    \node[main node,onslide=<4->{fill=black!60!green}] (6) [below right of=4] {6}; % <-4> forces an additional overlay in which node 2 disappears
+
+    \path<1>[->] (1) edge (2)
+        (4) edge (2)
+        (6) edge (2);
+    \path<-4>[->] (1) edge (3)
+        (4) edge (1);
+    \path<-5>[->] (3) edge (4);
+\end{tikzpicture}
+ \end{column}
+    \begin{column}{0.48\textwidth}
+\begin{itemize}
+    \item<1-> Graf med fem noder 
+    \item<2-> Transaksjon 2 venter på ingenting
+    \item<3-> Marker transaksjon 2 som utført
+    \item<4-> Marker transaksjon 6 som utført
+    \item<5-> Funnet syklus, fjern eldeste transaksjon 1
+    \item<6-> Transaksjon 4 venter på ingenting
+    \item<7-> Marker transaksjon 4 som utført
+    \item<8-> Marker transaksjon 3 som utført
+\end{itemize}
+ \end{column}
+\end{columns}
 \end{frame}
 
 \subsection*{Spørretid}
@@ -297,10 +654,17 @@ FROM OrderDetails;
     \end{figure}
 \end{frame}
 
+%=================================
 
 \section{Alt mulig}
-\begin{frame}{}
-    TODO: fyll med innhold om andre ting
+\begin{frame}{Andre teamer}
+\begin{itemize}
+    \item Databaseadministrasjon
+    \item Webapplikasjoner (php, tragisk)
+    \item NoSQL, XML, JSON
+    \item Noen småteamer og informasjoner fra temaene i kræsjkurset
+    \item Guest Lectures
+\end{itemize}
 \end{frame}
 
 \subsection*{Spørretid}
