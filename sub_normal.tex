@@ -1,0 +1,202 @@
+\section{Normalisasjon}
+\subsection*{Hvorfor gjør man normalisasjon?}
+\begin{frame}{Hvorfor normalisasjon?}
+\begin{itemize}[<+->]
+    \item Unngå redundante informasjoner
+    \item Bedre å oppdatere informasjoner hvis de bare finnes en gang
+    \item Lettere å bruke en stor database
+    \item Visualisering av en database
+\end{itemize}
+\end{frame}
+
+\subsection*{Viktige begrep}
+\begin{frame}{Begrep}
+\begin{itemize}[<+->]
+    \item \textbf{Entitet: }En tabell i databasen
+    \item \textbf{Attributt: }En spalte i en tabell
+    \item \textbf{Nøkkel: }En spalte som bestemmer verdier i en/noen flere spalter
+    \item \textbf{Supernøkkel: }En nøkkel som bestemmer verdier i alle andre spaltene
+    \item \textbf{Kandidatnøkkel: }En minimal supernøkkel
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Functional Dependencies}
+\begin{itemize}[<+->]
+    \item En eller flere spalter bestemmer verdier av andre spalter
+    \item $A \rightarrow B$ (A bestemmer B)
+    \item $A,B \rightarrow C, D, E$ (A og B bestemmer C, D og E)
+    \item PersonNr $\rightarrow$ Navn (det samme nummer er det samme person)
+    \item ZipCode $\rightarrow$ City (den samme postkoden er den samme byen)
+\end{itemize}
+\end{frame}
+
+\subsection*{Anomalier}
+\begin{frame}{Eksempel}
+%\begin{center}
+\begin{tabular}{l|l|l|l|l}
+ StudentNr & Name & Address & KursNr & KursName \\\hline
+ 580 & Ola NordmaNN & 5075 Bergen Fv14 & INF237 & Algoritme Engineering\\
+ 580 & Ola NordmaNN & 5075 Bergen Fv14 & INF273 & Meta Heuristikker\\
+ 580 & Ola NordmaNN & 5075 Bergen Fv14 & INF227 & Logik\\
+ 256 & Max MustermaNN & 5055 Bergen Lv85 & INF237 & Algoritme Engineering\\
+\end{tabular}
+\\[5mm]
+Hva er problemet her?\\\pause
+Informasjoner blir lagret dobbelt.\\
+Hvis kursnavn eller studentadressen endrer seg, må den endres flere ganger.
+%\end{center}
+\end{frame}
+
+\begin{frame}{Anomalier}
+\begin{itemize}[<+->]
+    \item \textbf{Insertion Anomaly:} Den samme informasjonen blir lagt inn med andre verdier
+    \item \textbf{Update Anomaly:} Dobbel informasjon blir ikke oppdatert overalt
+    \item \textbf{Deletion Anomaly}: Data forsvinner fordi den ikke finnes i en egen tabell
+\end{itemize}
+
+\pause
+
+\medskip
+
+Eksempler:
+\begin{itemize}[<+->]
+    \item \textbf{Insertion Anomaly:} Studenten tar et kurs til, men har nå en annen adresse 
+    \item \textbf{Update Anomaly:} Kursnavnet blir oppdatert, men ikke for alle studenter
+    \item \textbf{Deletion Anomaly:} En student melder seg ut av alle kurser, så forsvinner han i hele databasen
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Hvordan løser man problemene?}
+\begin{tabular}{l|l|l}
+ StudentNr & Name & Address\\\hline
+ 580 & Ola NordmaNN & 5075 Bergen Fv 14\\
+ 256 & Max MustermaNN & 5055 Bergen Lv 85\\
+\end{tabular}
+\vfill
+\begin{tabular}{l|l}
+KursNr & KursName \\\hline
+INF237 & Algorithm Engineering\\
+INF273 & Meta Heuristikker\\
+INF227 & Logikk\\
+\end{tabular}
+\hfill
+\begin{tabular}{l|l}
+ StudentNr & KursNr\\\hline
+ 580 & INF237\\
+ 580 & INF273\\
+ 580 & INF227\\
+ 256 & INF237\\
+\end{tabular}
+\end{frame}
+
+\subsection*{Normalformer}
+\begin{frame}{1. Normalform (1NF)}
+    \begin{block}{1. Normalform}
+    Hvert attributt (spalte) må være atomar, den kan ikke har flere verdier (lister etc. er forbud).
+    \end{block}
+    \vfill
+    \pause
+    \begin{tabular}{l|l}
+     StudentNr & KursNr\\\hline
+     580 & [INF237, INF273, INF227]\\
+     256 & INF237\\
+     \end{tabular}
+     \hfill
+     \pause
+     $\rightarrow$
+     \hfill
+     \begin{tabular}{l|l}
+     StudentNr & KursNr\\\hline
+     580 & INF237\\
+     580 & INF273\\
+     580 & INF227\\
+     256 & INF237\\
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{2. Normalform (2NF)}
+    \begin{block}{2. Normalform}
+    Alle ikke-nøkkel-attributter er fullstendig funksjonell avhengig av en primærnøkkel.\\
+    En ikke primær-attributt kan ikke være avhengig av bare en del av nøkkelen.
+    \end{block}
+    \vfill
+    \only<1>{\begin{tabular}{l|l|l}
+     StudentNr & KursNr & StudentNavn\\\hline
+     580 & INF237 & Ola\\
+     580 & INF273 & Ola\\
+     580 & INF227 & Ola\\
+     256 & INF237 & Max\\
+     \end{tabular}
+     }
+     \only<2>{
+     \begin{tabular}{l|l}
+     StudentNr & KursNr\\\hline
+     580 & INF237\\
+     580 & INF273\\
+     580 & INF227\\
+     256 & INF237\\
+    \end{tabular}
+    \hfill
+    \begin{tabular}{l|l}
+     StudentNr & StudentNavn\\\hline
+     580 & Ola\\
+     580 & Ola\\
+     580 & Ola\\
+     256 & Max\\
+    \end{tabular}
+    }
+\end{frame}
+
+\begin{frame}{3. Normalform (3NF)}
+\begin{block}{3. Normalform}
+    Det finnes ingen transitive avhengigheter.\\
+    Det finnes ikke tre attributter A, B, C der $A \rightarrow B$ og $B \rightarrow C$ gjelder.
+    \end{block}
+    \vfill
+    \only<1>{\begin{tabular}{l|l|l}
+     Universitetet & By & Land\\\hline
+     UiB & Bergen & Norge\\
+     HUB & Berlin & Tyskland\\
+     NTNU & Trondhjem & Norge\\
+     \end{tabular}
+     }
+     \only<2>{
+     \begin{tabular}{l|l}
+     Universitetet & By\\\hline
+     UiB & Bergen\\
+     HUB & Berlin\\
+     NTNU & Trondhjem\\
+    \end{tabular}
+    \hfill
+    \begin{tabular}{l|l}
+     By & Land\\\hline
+     Bergen & Norge\\
+     Berlin & Tyskland\\
+     Trondhjem & Norge\\
+    \end{tabular}
+    }
+\end{frame}
+
+\begin{frame}{Boyce–Codd Normalform (BCNF)}
+\begin{block}{Boyce-Codd Normalform ($3 \frac{1}{2}$NF)}
+    Det finnes ikke to overlappende kandidatnøkler. Skjer nesten aldri.
+    \end{block}
+    \vfill
+    $Tabell(A, B, C, D)$\\
+    $A,B\rightarrow C,D; $ $C\rightarrow B$\medskip
+    
+    \pause
+    Løsning: Split opp tabellen for å fjerne syklisk avhengig:\\
+    $Tabell1(A, C, D)$, $Tabell2(C, B)$\\
+    $A\rightarrow C,D; $ $C\rightarrow B$\medskip
+\end{frame}
+
+\subsection*{Spørretid}
+\begin{frame}{Spørsmål?}
+    \begin{figure}
+        \centering
+        \includegraphics[height = 4.9cm]{images/guillaume9.jpg}
+        \caption{Guillaume foran Tvindefossen}
+        \label{fig:guillaume9}
+    \end{figure}
+\end{frame}
