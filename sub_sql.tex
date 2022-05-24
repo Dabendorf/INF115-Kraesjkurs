@@ -426,6 +426,34 @@ FROM OrderDetails;
 \end{minted}
 \end{frame}
 
+\subsection*{SQL-Injections}
+\begin{frame}{SQL-Injections}
+    \begin{itemize}[<+->]
+        \item Noen SQL kommandoer trenger input av brukeren
+        \item Eksempel: Spørsmål etter brukernavn og passord
+        \item Eksempel: Inputboks med søkebegrep i en søkefunksjon
+        \item Hva skjer om brukeren taster inn onde ting?
+        \item Programmerer må sjekke om input er farlig eller ikke
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{}
+\begin{minted}{python}
+input_user = input()
+commando1 = "SELECT * FROM Users WHERE name={input_user};"
+execute_query(database, commando1)
+\end{minted}
+\pause
+Input: lukas; DROP TABLE Users;
+\pause
+\begin{minted}{python}
+commando1 = "SELECT * FROM Users WHERE name=lukas; DROP TABLE Users;"
+execute_query(database, commando1)
+\end{minted}
+\pause
+Brukeren har slettet brukertabellen. \pause Trist.
+\end{frame}
+
 \subsection*{Spørretid}
 \begin{frame}{Spørsmål?}
     \begin{figure}
